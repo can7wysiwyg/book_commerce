@@ -54,7 +54,10 @@ BookRoute.post(
         throw new Error("book price cannot be empty");
       }
       if (!bookReleaseDate) {
-        throw new Error("book author cannot be empty");
+        throw new Error("book release date cannot be empty");
+      }
+      if(!bookAuthor) {
+        throw new Error("book author cannot be empty")
       }
 
       const result = await cloudinary.uploader.upload(req.file.path);
@@ -88,7 +91,7 @@ BookRoute.put(
     try {
       const { id } = req.params;
 
-      // Find the author in the database
+      // Find the book in the database
       const book = await Book.findById(id);
 
       // Check if the author exists
@@ -105,7 +108,7 @@ BookRoute.put(
       // Upload the new image to Cloudinary
       const result = await cloudinary.uploader.upload(req.file.path);
 
-      // Update the author's profile picture in the database
+      // Update the book's profile picture in the database
       book.bookImage = result.secure_url; // Save the new image URL in the database
 
       await book.save();
@@ -210,7 +213,7 @@ BookRoute.get('/book/get_single/:id', asyncHandler(async(req, res, next) => {
 
 }))
 
-BookRoute.get('/books/show_authors_books', asyncHandler(async (req, res, next) => {
+BookRoute.get('/book/show_authors_books', asyncHandler(async (req, res, next) => {
     try {
       const { bookAuthor } = req.query;
   
