@@ -6,7 +6,10 @@ const port  = process.env.PORT || 5500
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
-
+const AdminRoute = require('./routes/AdminRoute')
+const BookRoute = require('./routes/BookRoute')
+const NewBookRoute = require('./routes/NewBookRoute')
+const GenreRoute = require('./routes/GenreRoute')
 
 
 mongoose.connect(process.env.MONGOURL)
@@ -26,6 +29,13 @@ db.once('open', function(){
   app.use(express.json({limit: '50mb'}))
   app.use(express.urlencoded({extended: true, limit: '50mb'}))
   app.use(cookieParser())
+
+  // api routes
+
+  app.use(AdminRoute)
+  app.use(BookRoute)
+  app.use(NewBookRoute)
+  app.use(GenreRoute)
 
 
   app.listen(port, () => {
