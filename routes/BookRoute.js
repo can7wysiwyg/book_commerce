@@ -155,32 +155,30 @@ BookRoute.delete(
 );
 
 BookRoute.delete(
-  "/book/delete_by_author_name",
-  verify,
-  authAdmin,
-  asyncHandler(async (req, res, next) => {
-
-try {
-
-    const{bookAuthor} = req.body
-
-    if(!bookAuthor) {
-        throw new Error("book author cannot be empty")
-    }
-
-    await Book.deleteMany({bookAuthor: bookAuthor})
-
-    res.json({success: true, msg: "all books associated with this author have been deleted!"})
-
-
-    
-} catch (error) {
-    next(error)
-}
-
-
-  })
-);
+    "/book/delete_by_author_name",
+    verify,
+    authAdmin,
+    asyncHandler(async (req, res, next) => {
+      try {
+        const { bookAuthor } = req.body;
+  
+        if (!bookAuthor) {
+          return res.status(400).json({ error: "Book author cannot be empty" });
+        }
+  
+        const result = await Book.deleteMany({ bookAuthor });
+  
+        res.json({
+          success: true,
+          msg: `All books associated with the author "${bookAuthor}" have been deleted!`,
+          deletedCount: result.deletedCount,
+        });
+      } catch (error) {
+        next(error);
+      }
+    })
+  );
+  
 
 
 BookRoute.get('/book/show_all', asyncHandler(async(req, res, next) => {
@@ -212,26 +210,40 @@ BookRoute.get('/book/get_single/:id', asyncHandler(async(req, res, next) => {
 
 }))
 
+BookRoute.get('/books/show_authors_books', asyncHandler(async (req, res, next) => {
+    try {
+      const { bookAuthor } = req.query;
+  
+      if (!bookAuthor) {
+        throw new Error("Book author needs to be specified");
+      }
+  
+      const books = await Book.find({ bookAuthor });
+  
+      res.json({ success: true, data: books });
+    } catch (error) {
+      next(error);
+    }
+  }));
 
-BookRoute.get('/books/show_authors_books', asyncHandler(async(req, res, next) => {
+
+  BookRoute.get('/book/show_by_genre/gnr', asyncHandler(async(req, res, next) => {
 
 try {
 
-    const{bookAuthor} = req.body
+    const books = await Book.find({BookGenre: req.query.genre})
 
-    if(!bookAuthor) {
-        throw new Error("book author need to be specified")
-    }
-
-    await Book.find({bookAuthor : bookAuthor }).then((books) =>
-    res.json({ books })
-  );
-
+    res.json({books})
+   
     
 } catch (error) {
     next(error)
 }
 
-}))
+
+  }))
+  
+
+
 
 module.exports = BookRoute;
