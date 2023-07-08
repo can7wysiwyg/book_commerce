@@ -245,8 +245,20 @@ try {
 
 
   }))
-  
+ 
 
+
+BookRoute.get('/book/show', asyncHandler(async (req, res, next) => {
+  try {
+    const relatedBooks = await Book.find({ genre }).sort({ _id: -1 }).limit(4);
+
+    
+    res.json(relatedBooks);
+  } catch (error) {
+    next(error);
+  }
+}));
+ 
 
 
 module.exports = BookRoute;
