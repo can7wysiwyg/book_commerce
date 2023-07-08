@@ -250,10 +250,10 @@ try {
 
 BookRoute.get('/book/show', asyncHandler(async (req, res, next) => {
   try {
-    const relatedBooks = await Book.find().sort({ _id: -1 }).limit(4);
+    const results = await Book.find().sort({ _id: -1 }).limit(4);
 
     
-    res.json({relatedBooks});
+    res.json({results});
   } catch (error) {
     next(error);
   }
