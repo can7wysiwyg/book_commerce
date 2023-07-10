@@ -229,24 +229,16 @@ BookRoute.get('/book/show_authors_books', asyncHandler(async (req, res, next) =>
     }
   }));
 
-
-  BookRoute.get('/book/show_by_genre/gnr', asyncHandler(async(req, res, next) => {
-
-try {
-
-    const books = await Book.find({BookGenre: req.query.genre})
-
-    res.json({books})
-   
-    
-} catch (error) {
-    next(error)
-}
-
-
-  }))
- 
-
+  BookRoute.get('/book/show_by_genre', asyncHandler(async(req, res, next) => {
+    try {
+      const genre = req.query.genre;
+      const books = await Book.find({ BookGenre: genre });
+      res.json({ books });
+    } catch (error) {
+      next(error);
+    }
+  }));
+  
 
 BookRoute.get('/book/show', asyncHandler(async (req, res, next) => {
   try {
@@ -258,6 +250,18 @@ BookRoute.get('/book/show', asyncHandler(async (req, res, next) => {
     next(error);
   }
 }));
+
+BookRoute.get('/book/popular', asyncHandler(async (req, res, next) => {
+  try {
+    const results = await Book.find().sort({ _id: -1 }).limit(4);
+
+    
+    res.json({results});
+  } catch (error) {
+    next(error);
+  }
+}));
+
  
 
 

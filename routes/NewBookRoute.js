@@ -165,6 +165,23 @@ NewBookRoute.get('/newbook/show_all', asyncHandler(async(req, res, next) => {
 
 }))
 
+
+NewBookRoute.get('/newbook/show_slide', asyncHandler(async(req, res, next) => {
+
+try {
+
+  const results = await NewBook.find().sort({ _id: -1 }).limit(4);
+
+    
+  res.json({results});
+  
+} catch (error) {
+  next(error)
+}
+
+}))
+
+
 NewBookRoute.get('/newbook/show_single/:id', asyncHandler(async(req, res, next) => {
     try {
 
