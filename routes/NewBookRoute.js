@@ -170,7 +170,7 @@ NewBookRoute.get('/newbook/show_slide', asyncHandler(async(req, res, next) => {
 
 try {
 
-  const results = await NewBook.find().sort({ _id: -1 }).limit(4);
+  const results = await NewBook.find().sort({ _id: -1 }).limit(3);
 
     
   res.json({results});
@@ -188,7 +188,7 @@ NewBookRoute.get('/newbook/show_single/:id', asyncHandler(async(req, res, next) 
         const {id} = req.params
 
         const book = await NewBook.findOne({_id: id})
-        res.json({success: true, data: books})
+        res.json({success: true, data: book})
         
     } catch (error) {
         next(error)

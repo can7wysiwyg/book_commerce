@@ -213,7 +213,7 @@ BookRoute.get('/book/get_single/:id', asyncHandler(async(req, res, next) => {
 
 }))
 
-BookRoute.get('/book/show_authors_books', asyncHandler(async (req, res, next) => {
+BookRoute.get('/book/show_authors_books/bk', asyncHandler(async (req, res, next) => {
     try {
       const { bookAuthor } = req.query;
   
@@ -229,7 +229,7 @@ BookRoute.get('/book/show_authors_books', asyncHandler(async (req, res, next) =>
     }
   }));
 
-  BookRoute.get('/book/show_by_genre', asyncHandler(async(req, res, next) => {
+  BookRoute.get('/book/show_by_genre/gnr', asyncHandler(async(req, res, next) => {
     try {
       const genre = req.query.genre;
       const books = await Book.find({ BookGenre: genre });
