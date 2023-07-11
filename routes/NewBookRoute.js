@@ -212,7 +212,7 @@ NewBookRoute.get('/newbook/show_by_genre/gnr', asyncHandler(async(req, res, next
       }))
       
     
-      NewBookRoute.get('/newbook/show_authors_books', asyncHandler(async (req, res, next) => {
+      NewBookRoute.get('/newbook/show_authors_books/bk', asyncHandler(async (req, res, next) => {
         try {
           const { bookAuthor } = req.query;
       
