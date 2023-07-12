@@ -6,6 +6,7 @@ const authAdmin = require("../middleware/authAdmin");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const { log } = require("console");
 const cloudinary = require("cloudinary").v2;
 
 const storage = multer.diskStorage({
@@ -138,20 +139,25 @@ try{
 
 } ))
 
-NewBookRoute.delete('/newbook/delete/:id', verify, authAdmin, asyncHandler(async(req, res, next) => {
 
+NewBookRoute.delete(
+  "/newbook/delete_single/:id",
+  verify,
+  authAdmin,
+  asyncHandler(async (req, res, next) => {
     try {
-        const {id} = req.body
+      const { id } = req.params;
 
-        await NewBook.findByIdAndDelete(id)
-        
-        res.json({success: true, msg: "book has been successfully deleted"})
-        
+      await NewBook.findByIdAndDelete(id);
+
+      res.json({ success: true, msg: "book has been successfully deleted" });
     } catch (error) {
-        next(error)
+      next(error);
     }
+  })
+);
 
-}))
+
 
 NewBookRoute.get('/newbook/show_all', asyncHandler(async(req, res, next) => {
 

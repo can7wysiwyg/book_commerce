@@ -10,6 +10,7 @@ const AdminRoute = require('./routes/AdminRoute')
 const BookRoute = require('./routes/BookRoute')
 const NewBookRoute = require('./routes/NewBookRoute')
 const GenreRoute = require('./routes/GenreRoute')
+const CartRoute = require('./routes/CartRoute')
 
 
 mongoose.connect(process.env.MONGOURL)
@@ -36,6 +37,7 @@ db.once('open', function(){
   app.use(BookRoute)
   app.use(NewBookRoute)
   app.use(GenreRoute)
+  app.use(CartRoute)
 
 
   app.listen(port, () => {
