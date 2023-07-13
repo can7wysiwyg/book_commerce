@@ -79,6 +79,26 @@ try {
   }))
 
 
+
+  CartRoute.get('/cartt/show_cus_orders/fn',verify, authAdmin, asyncHandler(async (req, res, next) => {
+    try {
+      const { fullname } = req.query;
+  
+      if (!fullname) {
+        throw new Error("Name needs to be specified");
+      }
+  
+      const carts = await Cart.find({ fullname });
+  
+      res.json({ success: true, data: carts });
+    } catch (error) {
+      next(error);
+    }
+  }));
+
+
+
+
   CartRoute.delete('/cartt/delete_cart/:id', verify, authAdmin, asyncHandler(async(req, res, next) => {
 
     try {
