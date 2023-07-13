@@ -1,39 +1,97 @@
 const CartRoute = require('express').Router();
 const Cart = require('../models/CartModel');
 const asyncHandler = require('express-async-handler');
+const verify = require('../middleware/verify')
+const authAdmin = require('../middleware/authAdmin')
 
 
-CartRoute.post('/cartt/make_order', asyncHandler(async (req, res) => {
-  // Get the cart contents and user details from the request body
-  const { cartContents, fullname, email, address, phonenumber } = req.body;
+CartRoute.post('/cartt/make_order', asyncHandler(async (req, res, next) => {
+
 
   try {
-    // Create a new cart document in the database
-    const newCart = new Cart({
-      fullname,
-      email,
-      phonenumber,
-      address,
-      cartContents,
-    });
 
-    // Save the cart to the database
-    await newCart.save();
 
-   await transport.sendMail({
-        from: 'tristankasusa@outlook.com',
-        to: email,
-       subject: 'You Have Placed An Order',
-       html: '<h1>Hello world!</h1>'
-     });
+    const {cartContents, fullname, email, phonenumber, address, amount } = req.body
 
-   
-    res.status(200).json({ message: 'Order placed successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error placing the order' });
+
+  if(!cartContents) {
+    throw new Error("Cart Cannot Be Empty");
+
   }
-}));
 
+  if(!fullname) {
+    throw new Error("Name cannot be empty");
+
+  }
+
+  if(!email) {
+    throw new Error("Email cannot be empty");
+
+  }
+
+  if(!address) {
+    throw new Error("Address cannot be empty");
+
+  }
+
+  if(!phonenumber) {
+    throw new Error("Phone Number cannot be empty");
+
+  }
+
+
+  const results = await Cart.create({
+    cartContents,
+    fullname,
+    email,
+    address,
+    amount,
+    phonenumber
+  })
+
+res.json({results})
+
+
+
+    
+  } catch (error) {
+    next(error)
+  }
+
+  
+
+
+  }));
+
+
+  CartRoute.get('/cartt/show_carts', verify, authAdmin, asyncHandler(async(req, res, next) => {
+try {
+
+  const carts = await Cart.find()
+
+  res.json({carts})
+  
+} catch (error) {
+  next(error)
+}
+
+
+  }))
+
+
+  CartRoute.delete('/cartt/delete_cart/:id', verify, authAdmin, asyncHandler(async(req, res, next) => {
+
+    try {
+
+      await Cart.findByIdAndDelete(req.params.id)
+
+      res.json({msg: "cart has been deleted...."})
+      
+    } catch (error) {
+      next(error)
+    }
+
+  }))
 
 
 module.exports = CartRoute;
