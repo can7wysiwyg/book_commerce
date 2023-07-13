@@ -1,15 +1,6 @@
 const CartRoute = require('express').Router();
 const Cart = require('../models/CartModel');
 const asyncHandler = require('express-async-handler');
-const nodemailer = require('nodemailer');
-const nodemailerSendgrid = require('nodemailer-sendgrid');
-
-
-const transport = nodemailer.createTransport(
-    nodemailerSendgrid({
-         apiKey: process.env.SENDGRID_API_KEY
-      })
-    );
 
 
 CartRoute.post('/cartt/make_order', asyncHandler(async (req, res) => {
@@ -42,5 +33,7 @@ CartRoute.post('/cartt/make_order', asyncHandler(async (req, res) => {
     res.status(500).json({ message: 'Error placing the order' });
   }
 }));
+
+
 
 module.exports = CartRoute;
