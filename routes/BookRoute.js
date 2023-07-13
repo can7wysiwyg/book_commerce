@@ -187,7 +187,7 @@ BookRoute.delete(
 BookRoute.get('/book/show_all', asyncHandler(async(req, res, next) => {
 
     try {
-        const books = await Book.find()
+        const books = await Book.find().sort({ _id: -1 })
         res.json({success: true, data: books})
         
     } catch (error) {

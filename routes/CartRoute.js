@@ -67,7 +67,7 @@ res.json({results})
   CartRoute.get('/cartt/show_carts', verify, authAdmin, asyncHandler(async(req, res, next) => {
 try {
 
-  const carts = await Cart.find()
+  const carts = await Cart.find().sort({ _id: -1 })
 
   res.json({carts})
   
