@@ -25,7 +25,7 @@ db.once('open', function(){
 
   app.use(cors())
 
-  app.use("/photos/", express.static(path.join(__dirname, '/photos/')));
+  app.use("/uploads/", express.static(path.join(__dirname, '/uploads/')));
 
   app.use(express.json({limit: '50mb'}))
   app.use(express.urlencoded({extended: true, limit: '50mb'}))

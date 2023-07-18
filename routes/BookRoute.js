@@ -9,19 +9,9 @@ const path = require("path");
 const { log } = require("console");
 const cloudinary = require("cloudinary").v2;
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "./photos/");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
-//   },
-// });
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "photos"));
+    cb(null, "./uploads/");
   },
   filename: function (req, file, cb) {
     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
