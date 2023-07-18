@@ -8,28 +8,14 @@ const fs = require("fs");
 const path = require("path");
 const cloudinary = require("cloudinary").v2;
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null,  __dirname +"./uploads/");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
-//   },
-// });
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null,  path.join(__dirname, './uploads/'));
+    cb(null, "./uploads/");
   },
   filename: function (req, file, cb) {
     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
   },
 });
-
-
-
-
-
 
 const upload = multer({ storage });
 
@@ -38,7 +24,6 @@ cloudinary.config({
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
 });
-
 
 BookRoute.post(
   "/book/create",
@@ -77,8 +62,6 @@ BookRoute.post(
 
       const result = await cloudinary.uploader.upload(req.file.path);
 
-      
-
       // Deletes  temporary file from photos folder as images are being uploaded to cloudinary
       fs.unlinkSync(req.file.path);
 
@@ -98,6 +81,7 @@ BookRoute.post(
     }
   })
 );
+
 
 BookRoute.put(
   "/book/update_image/:id",
