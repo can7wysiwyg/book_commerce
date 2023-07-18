@@ -25,44 +25,23 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+
 BookRoute.post(
   "/book/create",
   verify,
   authAdmin,
   upload.single("bookImage"),
-  asyncHandler(async (req, res, next) => {
+  asyncHandler(async (req, res) => {
+    const { bookAuthor, bookTitle, bookGenre, bookDescription, bookReleaseDate, bookPrice } = req.body;
+
+    if (!bookAuthor || !bookDescription || !bookGenre || !bookTitle || !bookReleaseDate || !bookPrice ) {
+      return res.json({ msg: "An important field is missing! Please check." });
+    }
+
     try {
-      const {
-        bookTitle,
-        bookGenre,
-        bookDescription,
-        bookPrice,
-        bookReleaseDate,
-        bookAuthor,
-      } = req.body;
-
-      if (!bookTitle) {
-        throw new Error("the book title cannot be empty");
-      }
-      if (!bookGenre) {
-        throw new Error("book genre cannot be empty");
-      }
-      if (!bookDescription) {
-        throw new Error("book description cannot be empty");
-      }
-      if (!bookPrice) {
-        throw new Error("book price cannot be empty");
-      }
-      if (!bookReleaseDate) {
-        throw new Error("book release date cannot be empty");
-      }
-      if(!bookAuthor) {
-        throw new Error("book author cannot be empty")
-      }
-
       const result = await cloudinary.uploader.upload(req.file.path);
 
-      // Deletes  temporary file from photos folder as images are being uploaded to cloudinary
+      // Delete the temporary file from the local server
       fs.unlinkSync(req.file.path);
 
       await Book.create({
@@ -75,12 +54,75 @@ BookRoute.post(
         bookImage: result.secure_url,
       });
 
-      res.json({ msg: "book has been successfully created!" });
+      res.json({ msg: "book has been successfully uploaded ." });
     } catch (error) {
-      next(error);
+      console.error("Error creating author:", error);
+      res.status(500).json({ error: "Failed to create author" });
     }
   })
 );
+
+
+
+
+
+
+// BookRoute.post(
+//   "/book/create",
+//   verify,
+//   authAdmin,
+//   upload.single("bookImage"),
+//   asyncHandler(async (req, res, next) => {
+//     try {
+//       const {
+//         bookTitle,
+//         bookGenre,
+//         bookDescription,
+//         bookPrice,
+//         bookReleaseDate,
+//         bookAuthor,
+//       } = req.body;
+
+//       if (!bookTitle) {
+//         throw new Error("the book title cannot be empty");
+//       }
+//       if (!bookGenre) {
+//         throw new Error("book genre cannot be empty");
+//       }
+//       if (!bookDescription) {
+//         throw new Error("book description cannot be empty");
+//       }
+//       if (!bookPrice) {
+//         throw new Error("book price cannot be empty");
+//       }
+//       if (!bookReleaseDate) {
+//         throw new Error("book release date cannot be empty");
+//       }
+//       if(!bookAuthor) {
+//         throw new Error("book author cannot be empty")
+//       }
+
+//       const result = await cloudinary.uploader.upload(req.file.path);
+
+//       // Deletes  temporary file from photos folder as images are being uploaded to cloudinary
+//       fs.unlinkSync(req.file.path);
+
+//       await Book.create({
+//         bookAuthor,
+//         bookDescription,
+//         bookGenre,
+//         bookPrice,
+//         bookReleaseDate,
+//         bookTitle,
+//         bookImage: result.secure_url,
+//       });
+
+//       res.json({ msg: "book has been successfully created!" });
+//     } catch (error) {
+//       next(error);
+//     }
+//   })
+// );
 
 BookRoute.put(
   "/book/update_image/:id",
