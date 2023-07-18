@@ -21,8 +21,7 @@ cloudinary.config({
 
 BookRoute.post(
   "/book/create",
-  verify,
-  authAdmin,
+  
   upload.single("bookImage"),
   asyncHandler(async (req, res, next) => {
     try {
