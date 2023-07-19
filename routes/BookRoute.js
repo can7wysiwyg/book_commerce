@@ -80,29 +80,14 @@ BookRoute.post(
   
         res.json({ msg: "book has been successfully created!" });
     
-        
-    
-        // res.json({ url: result.secure_url });
       });
 
   
-      // await Book.create({
-      //   bookAuthor,
-      //   bookDescription,
-      //   bookGenre,
-      //   bookPrice,
-      //   bookReleaseDate,
-      //   bookTitle,
-      //   bookImage: result.secure_url,
-      // }); 
-
-      // res.json({ msg: "book has been successfully created!" });
     } catch (error) {
       next(error);
     }
   })
 );
-
 
 
 BookRoute.put(
@@ -113,37 +98,41 @@ BookRoute.put(
     try {
       const { id } = req.params;
 
-      // Find the book in the database
       const book = await Book.findById(id);
 
-      // Check if the author exists
       if (!book) {
         return res.status(404).json({ msg: "Book not found." });
       }
 
-      // Delete the old image from Cloudinary if it exists
       if (book.bookImage) {
         const publicId = book.bookImage.split("/").pop().split(".")[0];
         await cloudinary.uploader.destroy(publicId);
       }
 
-      // Upload the new image to Cloudinary
-      const result = await cloudinary.uploader.upload(req.file.path);
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ msg: "No file uploaded." });
+      }
 
-      // Update the book's profile picture in the database
-      book.bookImage = result.secure_url; // Save the new image URL in the database
+      const bookImage = req.files.bookImage;
+
+      const result = await cloudinary.uploader.upload(bookImage.tempFilePath);
+
+      book.bookImage = result.secure_url;
 
       await book.save();
 
-      // Delete the image file from the temporary uploads folder
-      fs.unlinkSync(req.file.path);
+      fs.unlinkSync(bookImage.tempFilePath);
 
-      res.json({ msg: "book picture updated successfully." });
+      res.json({ msg: "Book picture updated successfully." });
     } catch (error) {
       next(error);
     }
   })
 );
+
+
+
+
 
 BookRoute.put(
   "/book/update_info/:id",
