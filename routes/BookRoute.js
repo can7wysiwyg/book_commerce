@@ -8,15 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const cloudinary = require("cloudinary").v2;
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
-  },
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 cloudinary.config({
@@ -29,8 +21,7 @@ cloudinary.config({
 
 BookRoute.post(
   "/book/create",
-  verify,
-  authAdmin,
+  
   upload.single("bookImage"),
   asyncHandler(async (req, res, next) => {
     try {
@@ -58,14 +49,13 @@ BookRoute.post(
       if (!bookReleaseDate) {
         throw new Error("book release date cannot be empty");
       }
-      if(!bookAuthor) {
-        throw new Error("book author cannot be empty")
+      if (!bookAuthor) {
+        throw new Error("book author cannot be empty");
       }
 
-      const result = await cloudinary.uploader.upload(req.file.path);
-
-      // Deletes  temporary file from photos folder as images are being uploaded to cloudinary
-      fs.unlinkSync(req.file.path);
+      const result = await cloudinary.uploader.upload(req.file.buffer, {
+        resource_type: "auto",
+      });
 
       await Book.create({
         bookAuthor,
@@ -83,6 +73,7 @@ BookRoute.post(
     }
   })
 );
+
 
 
 BookRoute.put(
