@@ -288,3 +288,9 @@ BookRoute.get('/book/popular', asyncHandler(async (req, res, next) => {
 
 
 module.exports = BookRoute;
+
+function removeTmp(filePath) {
+  fs.unlink(filePath, err => {
+    if (err) throw err;
+  });
+}
