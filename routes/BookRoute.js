@@ -3,13 +3,10 @@ const Book = require("../models/BookModel");
 const asyncHandler = require("express-async-handler");
 const verify = require("../middleware/verify");
 const authAdmin = require("../middleware/authAdmin");
-const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const cloudinary = require("cloudinary").v2;
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -21,8 +18,8 @@ cloudinary.config({
 
 BookRoute.post(
   "/book/create",
-  
-  upload.single("bookImage"),
+  verify,
+  authAdmin,
   asyncHandler(async (req, res, next) => {
     try {
       const {
@@ -53,21 +50,53 @@ BookRoute.post(
         throw new Error("book author cannot be empty");
       }
 
-      const result = await cloudinary.uploader.upload(req.file.buffer, {
-        resource_type: "auto",
+
+      if (!req.files || !req.files.bookImage) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+    
+      const file = req.files.bookImage;
+
+      cloudinary.uploader.upload(file.tempFilePath, {
+        folder: 'testImage',
+        width: 150,
+        height: 150,
+        crop: "fill"
+      }, async (err, result) => {
+        if (err) throw err;
+    
+        removeTmp(file.tempFilePath);
+
+
+        await Book.create({
+          bookAuthor,
+          bookDescription,
+          bookGenre,
+          bookPrice,
+          bookReleaseDate,
+          bookTitle,
+          bookImage: result.secure_url,
+        }); 
+  
+        res.json({ msg: "book has been successfully created!" });
+    
+        
+    
+        // res.json({ url: result.secure_url });
       });
 
-      await Book.create({
-        bookAuthor,
-        bookDescription,
-        bookGenre,
-        bookPrice,
-        bookReleaseDate,
-        bookTitle,
-        bookImage: result.secure_url,
-      });
+  
+      // await Book.create({
+      //   bookAuthor,
+      //   bookDescription,
+      //   bookGenre,
+      //   bookPrice,
+      //   bookReleaseDate,
+      //   bookTitle,
+      //   bookImage: result.secure_url,
+      // }); 
 
-      res.json({ msg: "book has been successfully created!" });
+      // res.json({ msg: "book has been successfully created!" });
     } catch (error) {
       next(error);
     }
@@ -80,7 +109,6 @@ BookRoute.put(
   "/book/update_image/:id",
   verify,
   authAdmin,
-  upload.single("bookImage"),
   asyncHandler(async (req, res, next) => {
     try {
       const { id } = req.params;
