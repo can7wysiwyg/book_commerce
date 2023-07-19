@@ -6,11 +6,13 @@ const port  = process.env.PORT || 5500
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
+const fileUpload = require('express-fileupload')
 const AdminRoute = require('./routes/AdminRoute')
 const BookRoute = require('./routes/BookRoute')
 const NewBookRoute = require('./routes/NewBookRoute')
 const GenreRoute = require('./routes/GenreRoute')
 const CartRoute = require('./routes/CartRoute')
+const TestRoute = require('./routes/TestRoute')
 
 
 mongoose.connect(process.env.MONGOURL)
@@ -30,8 +32,9 @@ db.once('open', function(){
   app.use(express.json({limit: '50mb'}))
   app.use(express.urlencoded({extended: true, limit: '50mb'}))
   app.use(cookieParser())
-  BookRoute.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
+  app.use(fileUpload({
+    useTempFiles: true
+}))
   
 
   
@@ -44,6 +47,7 @@ db.once('open', function(){
   app.use(NewBookRoute)
   app.use(GenreRoute)
   app.use(CartRoute)
+  app.use(TestRoute)
 
 
   app.listen(port, () => {
