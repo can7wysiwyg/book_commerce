@@ -48,6 +48,9 @@ NewBookRoute.post(
         return res.status(400).json({ message: 'No file uploaded' });
       }
 
+      const file = req.files.bookImage;
+
+
       cloudinary.uploader.upload(file.tempFilePath, {
         folder: 'testImage',
         width: 150,
@@ -243,3 +246,9 @@ NewBookRoute.get('/newbook/show_by_genre/gnr', asyncHandler(async(req, res, next
 
 
 module.exports = NewBookRoute;
+
+function removeTmp(filePath) {
+  fs.unlink(filePath, err => {
+    if (err) throw err;
+  });
+}
