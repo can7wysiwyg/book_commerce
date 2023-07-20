@@ -3,22 +3,11 @@ const NewBook = require("../models/NewBook");
 const asyncHandler = require("express-async-handler");
 const verify = require("../middleware/verify");
 const authAdmin = require("../middleware/authAdmin");
-const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const { log } = require("console");
 const cloudinary = require("cloudinary").v2;
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./photos/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -30,7 +19,6 @@ NewBookRoute.post(
   "/newbook/create",
   verify,
   authAdmin,
-  upload.single("bookImage"),
   asyncHandler(async (req, res, next) => {
     try {
       const {
@@ -56,25 +44,41 @@ NewBookRoute.post(
         throw new Error("book author cannot be empty");
       }
 
-      const result = await cloudinary.uploader.upload(req.file.path);
+      if (!req.files || !req.files.bookImage) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
 
-      // Deletes  temporary file from photos folder as images are being uploaded to cloudinary
-      fs.unlinkSync(req.file.path);
+      cloudinary.uploader.upload(file.tempFilePath, {
+        folder: 'testImage',
+        width: 150,
+        height: 150,
+        crop: "fill"
+      }, async (err, result) => {
+        if (err) throw err;
+    
+        removeTmp(file.tempFilePath);
 
-      await NewBook.create({
-        bookAuthor,
-        bookDescription,
-        bookGenre,
-        bookPrice,
-        bookReleaseDate,
-        bookTitle,
-        bookImage: result.secure_url,
+
+        await NewBook.create({
+          bookAuthor,
+          bookDescription,
+          bookGenre,
+          bookPrice,
+          bookReleaseDate,
+          bookTitle,
+          bookImage: result.secure_url,
+        }); 
+
+        res.json({
+          success: true,
+          msg: "new book has been created successfully",
+        });
+  
+        
+    
       });
 
-      res.json({
-        success: true,
-        msg: "new book has been created successfully",
-      });
+    
     } catch (error) {
       next(error);
     }
@@ -85,38 +89,39 @@ NewBookRoute.put(
   "/newbook/update_image/:id",
   verify,
   authAdmin,
-  upload.single("bookImage"),
+  
   asyncHandler(async (req, res, next) => {
 
     try {
-        const { id } = req.params;
-  
-        // Find the author in the database
-        const newbook = await NewBook.findById(id);
-  
-        // Check if the new book exists
-        if (!newbook) {
-          return res.status(404).json({ msg: "Book not found." });
-        }
-  
-        // Delete the old image from Cloudinary if it exists
-        if (newbook.bookImage) {
-          const publicId = newbook.bookImage.split("/").pop().split(".")[0];
-          await cloudinary.uploader.destroy(publicId);
-        }
-  
-        // Upload the new image to Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path);
-  
-        // Update the book's profile picture in the database
-        book.bookImage = result.secure_url; // Save the new image URL in the database
-  
-        await newbook.save();
-  
-        // Delete the image file from the temporary uploads folder
-        fs.unlinkSync(req.file.path);
-  
-        res.json({ msg: "book picture updated successfully." });
+      const { id } = req.params;
+
+      const book = await NewBook.findById(id);
+
+      if (!book) {
+        return res.status(404).json({ msg: "Book not found." });
+      }
+
+      if (book.bookImage) {
+        const publicId = book.bookImage.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ msg: "No file uploaded." });
+      }
+
+      const bookImage = req.files.bookImage;
+
+      const result = await cloudinary.uploader.upload(bookImage.tempFilePath);
+
+      book.bookImage = result.secure_url;
+
+      await book.save();
+
+      fs.unlinkSync(bookImage.tempFilePath);
+
+      res.json({ msg: "Book picture updated successfully." });
+        
       } catch (error) {
         next(error);
       }

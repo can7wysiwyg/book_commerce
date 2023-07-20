@@ -4,7 +4,6 @@ const asyncHandler = require("express-async-handler");
 const verify = require("../middleware/verify");
 const authAdmin = require("../middleware/authAdmin");
 const fs = require("fs");
-const path = require("path");
 const cloudinary = require("cloudinary").v2;
 
 
